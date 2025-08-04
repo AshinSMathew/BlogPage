@@ -145,7 +145,7 @@ The application expects API responses in the following format:
 ```
 
 
-## 👨‍💻 Developer Information
+## Developer Information
 
 **Project Author**: [Ashin Sabu Mathew](https://github.com/AshinSMathew)  
 **Program**: LAUNCHPAD by MuLearn  
