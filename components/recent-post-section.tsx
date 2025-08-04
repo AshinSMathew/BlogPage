@@ -111,14 +111,19 @@ const RecentPostsSection = forwardRef<HTMLDivElement, RecentPostsSectionProps>(
     const [posts, setPosts] = useState<Post[]>(propsPosts || []);
     const [loading, setLoading] = useState(!propsPosts);
     const [error, setError] = useState<string | null>(null);
+    const [showAllPosts, setShowAllPosts] = useState(false);
 
     useEffect(() => {
       if (!propsPosts) {
-        fetchPosts();
+        fetchInitialPosts();
       }
     }, [propsPosts]);
 
-    const fetchPosts = async () => {
+    const fetchInitialPosts = async () => {
+      await fetchPosts(3);
+    };
+
+    const fetchPosts = async (limit?: number) => {
       try {
         setLoading(true);
         setError(null);
@@ -134,13 +139,33 @@ const RecentPostsSection = forwardRef<HTMLDivElement, RecentPostsSectionProps>(
         }
         
         const data = await response.json();
-        setPosts(data.slice(0,3));
+        setPosts(limit ? data.slice(0, limit) : data);
       } catch (err) {
         console.error('Error fetching posts:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch posts');
       } finally {
         setLoading(false);
       }
+    };
+
+    const handleAllPostsClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      if (!showAllPosts) {
+        if (propsPosts) {
+          setShowAllPosts(true);
+        } else {
+          await fetchPosts();
+          setShowAllPosts(true);
+        }
+      } else {
+        if (propsPosts) {
+          setShowAllPosts(false);
+        } else {
+          await fetchPosts(3);
+          setShowAllPosts(false);
+        }
+      }
+      onAllPostsClick?.();
     };
 
     if (loading) {
@@ -181,7 +206,7 @@ const RecentPostsSection = forwardRef<HTMLDivElement, RecentPostsSectionProps>(
               </h2>
               <p className="text-red-600 mb-4">Error loading posts: {error}</p>
               <button 
-                onClick={fetchPosts}
+                onClick = {() => fetchPosts()}
                 className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
               >
                 Retry
@@ -199,24 +224,20 @@ const RecentPostsSection = forwardRef<HTMLDivElement, RecentPostsSectionProps>(
           <div className="mb-12 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <div>
               <h2 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl">
-                Recent Posts
+                {showAllPosts ? 'All Posts' : 'Recent Posts'}
               </h2>
               <p className="mt-2 text-gray-600">
-                Stay updated with the latest insights and trends
+                {showAllPosts ? 'Browse all our articles' : 'Stay updated with the latest insights and trends'}
               </p>
             </div>
             
-            <Link 
-              href="/blog"
+            <button
               className="group inline-flex items-center space-x-2 rounded-md border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:shadow-md"
-              onClick={(e) => {
-                e.preventDefault()
-                onAllPostsClick?.()
-              }}
+              onClick={handleAllPostsClick}
             >
-              <span>All Posts</span>
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
+              <span>{showAllPosts ? 'Show Less' : 'All Posts'}</span>
+              <ArrowRight className={`h-4 w-4 transition-transform ${showAllPosts ? 'rotate-180' : 'group-hover:translate-x-1'}`} />
+            </button>
           </div>
 
           {/* Posts Grid */}
@@ -231,19 +252,17 @@ const RecentPostsSection = forwardRef<HTMLDivElement, RecentPostsSectionProps>(
           </div>
 
           {/* Mobile View All Link - Hidden on larger screens */}
-          <div className="mt-12 text-center md:hidden">
-            <Link 
-              href="/blog"
-              className="inline-flex items-center space-x-2 text-sm font-semibold text-gray-900 hover:text-gray-700"
-              onClick={(e) => {
-                e.preventDefault()
-                onAllPostsClick?.()
-              }}
-            >
-              <span>View all posts</span>
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
+          {!showAllPosts && (
+            <div className="mt-12 text-center md:hidden">
+              <button
+                className="inline-flex items-center space-x-2 text-sm font-semibold text-gray-900 hover:text-gray-700"
+                onClick={handleAllPostsClick}
+              >
+                <span>View all posts</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </div>
       </section>
     )

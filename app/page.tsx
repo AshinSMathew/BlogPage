@@ -43,9 +43,6 @@ export default function BlogHomepage() {
     setSelectedPost(post);
   };
 
-  const handleAllPostsClick = () => {
-    alert(`Navigate to all posts page! Total posts available: ${allPosts.length}`);
-  };
 
   const closeModal = () => {
     setSelectedPost(null);
@@ -87,7 +84,6 @@ export default function BlogHomepage() {
 
         <RecentPostsSection
           onPostClick={handlePostClick}
-          onAllPostsClick={handleAllPostsClick}
           className="pb-16 pt-8 md:pb-24 md:pt-12"
         />
 
