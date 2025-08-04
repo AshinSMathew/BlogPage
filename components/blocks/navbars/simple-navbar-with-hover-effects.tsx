@@ -104,7 +104,7 @@ const MobileNav = ({ navItems }: any) => {
                   href={navItem.link}
                   className="relative text-secondary hover:text-primary dark:text-secondary dark:hover:text-primary"
                 >
-                  <motion.span className="block">{navItem.name}</motion.span>
+                  <motion.span className="block text-black">{navItem.name}</motion.span>
                 </Link>
               ))}
               <button className="w-full rounded-lg bg-primary px-8 py-2 font-medium text-primary-foreground hover:bg-primary/90">
