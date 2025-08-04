@@ -147,8 +147,7 @@ The application expects API responses in the following format:
 
 ## 👨‍💻 Developer Information
 
-**Project Author**: [Ashin Sabu Mathew](https://github.com/AshinSMathew)
-
-**Program**: LAUNCHPAD by MuLearn
-**Level**: Web Development Level 4
-**Task**: Task 7 - Blog Platform Development
+**Project Author**: [Ashin Sabu Mathew](https://github.com/AshinSMathew)  
+**Program**: LAUNCHPAD by MuLearn  
+**Level**: Web Development Level 4  
+**Task**: Task 7 - Blog Platform Development  
