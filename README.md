@@ -45,7 +45,7 @@ This project was developed as part of the LAUNCHPAD by MuLearn program to demons
 ### **Development Tools**
 - **TypeScript**: Type checking and IntelliSense
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 blog-platform/
@@ -70,7 +70,7 @@ blog-platform/
 └── README.md                 # Project documentation
 ```
 
-## 🚀 Setup Instructions
+## Setup Instructions
 
 ### **Prerequisites**
 - Node.js 18+ installed
@@ -107,7 +107,7 @@ blog-platform/
 5. **Open application**
    Navigate to `http://localhost:3000`
 
-## 🔧 API Configuration
+## API Configuration
 
 ### **MockAPI Setup**
 1. Create account at [MockAPI.io](https://mockapi.io)
@@ -130,7 +130,7 @@ blog-platform/
 NEXT_PUBLIC_PROJECT_SECRET=your_project_secret_here
 ```
 
-## 📊 API Response Format
+## API Response Format
 
 The application expects API responses in the following format:
 
@@ -147,7 +147,8 @@ The application expects API responses in the following format:
 
 ## 👨‍💻 Developer Information
 
-**Project Author**: [Ashin Sabu Mathew](https://github.com/AshinSMathew) 
-**Program**: LAUNCHPAD by MuLearn  
-**Level**: Web Development Level 4  
-**Task**: Task 7 - Blog Platform Development  
+**Project Author**: [Ashin Sabu Mathew](https://github.com/AshinSMathew)
+
+**Program**: LAUNCHPAD by MuLearn
+**Level**: Web Development Level 4
+**Task**: Task 7 - Blog Platform Development
