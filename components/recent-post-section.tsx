@@ -1,6 +1,6 @@
 "use client"
 
-import { forwardRef } from "react"
+import { forwardRef, useEffect, useState } from "react"
 import { ArrowRight, Clock } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -8,14 +8,9 @@ import Link from "next/link"
 export interface Post {
   id: string
   title: string
-  description: string
+  content: string
   image: string
-  author: {
-    name: string
-    avatar: string
-  }
-  readTime: string
-  category?: string
+  createdAt: string
 }
 
 interface RecentPostsSectionProps {
@@ -25,44 +20,26 @@ interface RecentPostsSectionProps {
   className?: string
 }
 
-const defaultPosts: Post[] = [
-  {
-    id: "1",
-    title: "Mastering UI Elements: A Practical Guide for Designers",
-    description: "Dive deep into the world of UI interfaces with our expert guides. Learn the latest trends and practical tips to elevate your design skills.",
-    image: "/blog.jpg",
-    author: {
-      name: "Jennifer Taylor",
-      avatar: "/blog.jpg"
-    },
-    readTime: "3 min read",
-    category: "UI Design"
-  },
-  {
-    id: "2",
-    title: "Crafting Seamless Experiences: The Art of Intuitive UI Design",
-    description: "Explore the principles and techniques behind user-centric UI design. Learn how to create interfaces that feel effortless and intuitive.",
-    image: "/blog.jpg",
-    author: {
-      name: "Jennifer Taylor",
-      avatar: "/blog.jpg"
-    },
-    readTime: "5 min read",
-    category: "Design Systems"
-  },
-  {
-    id: "3",
-    title: "Beyond Aesthetics: The Power of Emotional UX Design",
-    description: "Delve into the emotional aspects of UX design. Discover how to incorporate empathy and psychology into your design process.",
-    image: "/blog.jpg",
-    author: {
-      name: "Ryan A.",
-      avatar: "/blog.jpg"
-    },
-    readTime: "2 min read",
-    category: "UX Psychology"
-  }
-]
+const calculateReadTime = (content: string): string => {
+  const wordsPerMinute = 200;
+  const wordCount = content.split(/\s+/).length;
+  const readTime = Math.ceil(wordCount / wordsPerMinute);
+  return `${readTime} min read`;
+}
+
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+}
+
+const truncateContent = (content: string, maxLength: number = 150): string => {
+  if (content.length <= maxLength) return content;
+  return content.substring(0, maxLength).trim() + '...';
+}
 
 const PostCard = forwardRef<HTMLDivElement, { post: Post; onPostClick?: (post: Post) => void }>(
   ({ post, onPostClick }, ref) => {
@@ -83,16 +60,12 @@ const PostCard = forwardRef<HTMLDivElement, { post: Post; onPostClick?: (post: P
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
-          {post.category && (
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/5" />
-          )}
-          {post.category && (
-            <div className="absolute bottom-4 left-4">
-              <span className="inline-flex items-center rounded-full bg-black/90 px-3 py-1 text-xs font-medium text-white/90">
-                {post.category}
-              </span>
-            </div>
-          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/5" />
+          <div className="absolute bottom-4 left-4">
+            <span className="inline-flex items-center rounded-full bg-black/90 px-3 py-1 text-xs font-medium text-white/90">
+              Blog Post
+            </span>
+          </div>
         </div>
 
         <div className="p-6">
@@ -101,23 +74,21 @@ const PostCard = forwardRef<HTMLDivElement, { post: Post; onPostClick?: (post: P
           </h3>
           
           <p className="mt-3 text-sm leading-relaxed text-gray-600 line-clamp-3">
-            {post.description}
+            {truncateContent(post.content)}
           </p>
 
           <div className="mt-6 flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <Image
-                src={post.author.avatar}
-                alt={post.author.name}
-                width={32}
-                height={32}
-                className="rounded-full"
-              />
+              <div className="h-8 w-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <span className="text-white text-xs font-semibold">A</span>
+              </div>
               <div>
-                <p className="text-sm font-medium text-gray-900">{post.author.name}</p>
+                <p className="text-sm font-medium text-gray-900">Admin</p>
                 <div className="flex items-center space-x-1 text-xs text-gray-500">
                   <Clock className="h-3 w-3" />
-                  <span>{post.readTime}</span>
+                  <span>{calculateReadTime(post.content)}</span>
+                  <span>•</span>
+                  <span>{formatDate(post.createdAt)}</span>
                 </div>
               </div>
             </div>
@@ -132,11 +103,95 @@ PostCard.displayName = "PostCard"
 
 const RecentPostsSection = forwardRef<HTMLDivElement, RecentPostsSectionProps>(
   ({ 
-    posts = defaultPosts, 
+    posts: propsPosts, 
     onPostClick, 
     onAllPostsClick,
     className = "" 
   }, ref) => {
+    const [posts, setPosts] = useState<Post[]>(propsPosts || []);
+    const [loading, setLoading] = useState(!propsPosts);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+      if (!propsPosts) {
+        fetchPosts();
+      }
+    }, [propsPosts]);
+
+    const fetchPosts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const projectSecret = process.env.NEXT_PUBLIC_PROJECT_SECRET;
+        if (!projectSecret) {
+          throw new Error('Project secret not found in environment variables');
+        }
+
+        const response = await fetch(`https://${projectSecret}.mockapi.io/api/post`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setPosts(data.slice(0,3));
+      } catch (err) {
+        console.error('Error fetching posts:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch posts');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (loading) {
+      return (
+        <section ref={ref} className={`w-full py-20 ${className}`}>
+          <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-12">
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl">
+                Recent Posts
+              </h2>
+              <p className="mt-2 text-gray-600">
+                Stay updated with the latest insights and trends
+              </p>
+            </div>
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="bg-gray-300 rounded-lg aspect-[16/10] mb-4"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    if (error) {
+      return (
+        <section ref={ref} className={`w-full py-20 ${className}`}>
+          <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl mb-4">
+                Recent Posts
+              </h2>
+              <p className="text-red-600 mb-4">Error loading posts: {error}</p>
+              <button 
+                onClick={fetchPosts}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
     return (
       <section ref={ref} className={`w-full py-20 ${className}`}>
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

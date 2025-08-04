@@ -4,20 +4,47 @@ import { SimpleNavbarWithHoverEffects } from "@/components/blocks/navbars/simple
 import BlogHeroSection from "@/components/blog-hero-section";
 import FeaturedPostsSidebar from "@/components/featured-post-sidebar";
 import RecentPostsSection, { Post } from "@/components/recent-post-section";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function BlogHomepage() {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [allPosts, setAllPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAllPosts();
+  }, []);
+
+  const fetchAllPosts = async () => {
+    try {
+      setLoading(true);
+      
+      const projectSecret = process.env.NEXT_PUBLIC_PROJECT_SECRET;
+      if (!projectSecret) {
+        console.error('Project secret not found in environment variables');
+        return;
+      }
+
+      const response = await fetch(`https://${projectSecret}.mockapi.io/api/post`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setAllPosts(data);
+    } catch (error) {
+      console.error('Error fetching all posts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handlePostClick = (post: Post) => {
     setSelectedPost(post);
-    // In a real application, you might navigate to a post detail page here
-    alert(`Read more about: ${post.title}`);
   };
 
   const handleAllPostsClick = () => {
-    alert("Navigating to all posts page!");
-    // In a real application, you would navigate to the blog archive page
+    alert(`Navigate to all posts page! Total posts available: ${allPosts.length}`);
   };
 
   return (
@@ -43,22 +70,24 @@ export default function BlogHomepage() {
           onAllPostsClick={handleAllPostsClick}
           className="pb-16 pt-8 md:pb-24 md:pt-12"
         />
+
+        {/* Loading indicator */}
+        {loading && (
+          <div className="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-md shadow-lg">
+            Loading posts...
+          </div>
+        )}
       </main>
 
-      {/* Optionally, display selected post details or a modal */}
-      {selectedPost && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-2xl font-bold">{selectedPost.title}</h3>
-            <p className="text-gray-700">{selectedPost.description}</p>
-            <button
-              className="mt-6 rounded-md bg-primary px-4 py-2 text-white hover:bg-primary/90"
-              onClick={() => setSelectedPost(null)}
-            >
-              Close
-            </button>
+      {/* Posts Statistics Footer */}
+      {!loading && allPosts.length > 0 && (
+        <footer className="bg-gray-50 py-8">
+          <div className="container mx-auto px-4 text-center">
+            <p className="text-gray-600">
+              Showing latest posts • Total posts available: <span className="font-semibold">{allPosts.length}</span>
+            </p>
           </div>
-        </div>
+        </footer>
       )}
     </div>
   );
