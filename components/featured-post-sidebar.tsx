@@ -50,7 +50,7 @@ export default function FeaturedPostsSidebar(props: ComponentProps<"div">) {
       }
       
       const data = await response.json();
-      setFeaturedPosts(data.slice(3, 8));
+      setFeaturedPosts(data.slice(3, 7));
     } catch (err) {
       console.error('Error fetching featured posts:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch featured posts');
