@@ -151,3 +151,5 @@ The application expects API responses in the following format:
 **Program**: LAUNCHPAD by MuLearn  
 **Level**: Web Development Level 4  
 **Task**: Task 7 - Blog Platform Development  
+
+--
