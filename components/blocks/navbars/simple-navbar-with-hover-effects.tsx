@@ -1,145 +1,154 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { Menu as IconMenu2, X as IconX } from "lucide-react";
+import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import React, { useState } from "react";
 
 export function SimpleNavbarWithHoverEffects() {
-  return <Navbar />;
-}
-
-const Navbar = () => {
+  const [hovered, setHovered] = useState<number | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   const navItems = [
-    { name: "Homepage", link: "#" },
-    { name: "About us", link: "#" },
-    { name: "Features", link: "#" },
-    { name: "Blog", link: "#" },
-    { name: "Contact us", link: "#" },
-    { name: "Demo", link: "#" },
+    { name: "Homepage", link: "/" },
+    { name: "About us", link: "/about" },
+    { name: "Features", link: "/features" },
+    { name: "Blog", link: "/blog" },
+    { name: "Contact us", link: "/contact" },
+    { name: "Demo", link: "/demo" },
   ];
 
   return (
-    <div className="w-full">
-      <DesktopNav navItems={navItems} />
-      <MobileNav navItems={navItems} />
-    </div>
-  );
-};
-
-const DesktopNav = ({ navItems }: any) => {
-  const [hovered, setHovered] = useState<number | null>(null);
-  return (
-    <motion.div
-      onMouseLeave={() => {
-        setHovered(null);
-      }}
-      className={cn(
-        "relative z-[60] mx-auto hidden w-full max-w-7xl flex-row items-center justify-between self-start rounded-full bg-white px-4 py-2 lg:flex dark:bg-neutral-950",
-        "sticky inset-x-0 top-40"
-      )}
+    <motion.nav
+      onMouseLeave={() => setHovered(null)}
+      className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md"
     >
-      <Logo />
-      <div className="hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-black transition duration-200 hover:text-zinc-800 lg:flex lg:space-x-2">
-        {navItems.map((navItem: any, idx: number) => (
-          <Link
-            onMouseEnter={() => setHovered(idx)}
-            className="relative px-4 py-2 text-secondary hover:text-primary dark:text-secondary dark:hover:text-primary"
-            key={`link=${idx}`}
-            href={navItem.link}
-          >
-            {hovered === idx && (
-              <motion.div
-                layoutId="hovered"
-                className="absolute inset-0 h-full w-full rounded-full bg-muted"
-              />
-            )}
-            <span className="relative z-20 text-black">{navItem.name}</span>
-          </Link>
-        ))}
-      </div>
-      <button className="hidden rounded-full bg-primary px-8 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 md:block">
-        Get Started
-      </button>
-    </motion.div>
-  );
-};
-
-const MobileNav = ({ navItems }: any) => {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <>
-      <motion.div
-        animate={{ borderRadius: open ? "4px" : "2rem" }}
-        key={String(open)}
-        className="relative mx-auto flex w-full max-w-[calc(100vw-2rem)] flex-col items-center justify-between bg-white px-4 py-2 lg:hidden dark:bg-neutral-950"
-      >
-        <div className="flex w-full flex-row items-center justify-between">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
           <Logo />
-          {open ? (
-            <IconX
-              className="text-primary dark:text-primary"
-              onClick={() => setOpen(!open)}
-            />
-          ) : (
-            <IconMenu2
-              className="text-primary dark:text-primary"
-              onClick={() => setOpen(!open)}
-            />
-          )}
-        </div>
-
-        <AnimatePresence>
-          {open && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-x-0 top-16 z-20 flex w-full flex-col items-start justify-start gap-4 rounded-lg bg-white px-4 py-8 dark:bg-neutral-950"
-            >
-              {navItems.map((navItem: any, idx: number) => (
+          
+          {/* Desktop Navigation Items */}
+          <div className="hidden lg:flex lg:items-center lg:justify-center lg:flex-1 lg:ml-20">
+            <div className="flex items-center space-x-1">
+              {navItems.map((navItem, idx) => (
                 <Link
-                  key={`link=${idx}`}
+                  key={`nav-${idx}`}
                   href={navItem.link}
-                  className="relative text-secondary hover:text-primary dark:text-secondary dark:hover:text-primary"
+                  onMouseEnter={() => setHovered(idx)}
+                  className="relative px-4 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:text-gray-900"
                 >
-                  <motion.span className="block text-black">{navItem.name}</motion.span>
+                  {hovered === idx && (
+                    <motion.div
+                      layoutId="navbar-hover"
+                      className="absolute inset-0 rounded-lg bg-gray-100"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.15 }}
+                    />
+                  )}
+                  <span className="relative z-10">{navItem.name}</span>
                 </Link>
               ))}
-              <button className="w-full rounded-lg bg-primary px-8 py-2 font-medium text-primary-foreground hover:bg-primary/90">
-                Get Started
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </>
+            </div>
+          </div>
+          
+          {/* Desktop Get Started Button */}
+          <div className="hidden lg:flex lg:items-center">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="rounded-lg bg-gray-900 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-gray-800 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+            >
+              Get Started
+            </motion.button>
+          </div>
+          
+          {/* Mobile menu button */}
+          <div className="flex lg:hidden">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-900 transition-colors duration-200"
+            >
+              <span className="sr-only">Open main menu</span>
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" aria-hidden="true" />
+              ) : (
+                <Menu className="h-6 w-6" aria-hidden="true" />
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="lg:hidden bg-white border-b border-gray-100 shadow-lg overflow-hidden"
+          >
+            <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+              <div className="flex flex-col space-y-1">
+                {navItems.map((navItem, idx) => (
+                  <Link
+                    key={`mobile-nav-${idx}`}
+                    href={navItem.link}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-3 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors duration-200"
+                  >
+                    {navItem.name}
+                  </Link>
+                ))}
+                <div className="pt-4 mt-4 border-t border-gray-200">
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full rounded-lg bg-gray-900 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-gray-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+                  >
+                    Get Started
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
   );
-};
+}
 
 const Logo = () => {
   return (
     <Link
       href="/"
-      className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-primary"
+      className="flex items-center space-x-2 text-xl font-bold text-gray-900"
     >
-      <div className="w-6 h-6 ml-2">
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-900">
         <svg
-          width="24"
-          height="24"
+          width="20"
+          height="20"
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="text-primary"
+          className="text-white"
         >
           <path
-            d="M12 4L20 18H4L12 4Z"
+            d="M12 2L22 20H2L12 2Z"
             fill="currentColor"
+          />
+          <path
+            d="M12 8L18 18H6L12 8Z"
+            fill="white"
+            fillOpacity="0.3"
           />
         </svg>
       </div>
-      <span className="font-medium text-primary dark:text-primary-foreground">Beyond UI</span>
+      <span className="font-bold text-gray-900">Beyond UI</span>
     </Link>
   );
 };
+
+export default SimpleNavbarWithHoverEffects;
