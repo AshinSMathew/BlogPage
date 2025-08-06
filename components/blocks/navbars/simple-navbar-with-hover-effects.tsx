@@ -11,11 +11,11 @@ export function SimpleNavbarWithHoverEffects() {
   
   const navItems = [
     { name: "Homepage", link: "/" },
-    { name: "About us", link: "/about" },
-    { name: "Features", link: "/features" },
-    { name: "Blog", link: "/blog" },
-    { name: "Contact us", link: "/contact" },
-    { name: "Demo", link: "/demo" },
+    { name: "About us", link: "/" },
+    { name: "Features", link: "/" },
+    { name: "Blog", link: "/" },
+    { name: "Contact us", link: "/" },
+    { name: "Demo", link: "/" },
   ];
 
   return (
