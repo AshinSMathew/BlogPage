@@ -3,7 +3,8 @@
 import { SimpleNavbarWithHoverEffects } from "@/components/blocks/navbars/simple-navbar-with-hover-effects";
 import BlogHeroSection from "@/components/blog-hero-section";
 import FeaturedPostsSidebar from "@/components/featured-post-sidebar";
-import RecentPostsSection, { Post } from "@/components/recent-post-section";
+import PostsGrid from "@/components/post-grid";
+import { Post } from "@/components/post-card";
 import { useState, useEffect } from "react";
 
 export default function BlogHomepage() {
@@ -43,7 +44,6 @@ export default function BlogHomepage() {
     setSelectedPost(post);
   };
 
-
   const closeModal = () => {
     setSelectedPost(null);
   };
@@ -82,17 +82,10 @@ export default function BlogHomepage() {
           </div>
         </section>
 
-        <RecentPostsSection
+        <PostsGrid
           onPostClick={handlePostClick}
           className="pb-16 pt-8 md:pb-24 md:pt-12"
         />
-
-        {/* Loading indicator */}
-        {loading && (
-          <div className="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-md shadow-lg">
-            Loading posts...
-          </div>
-        )}
       </main>
 
       {/* Post Detail Modal */}
